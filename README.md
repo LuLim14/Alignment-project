@@ -17,3 +17,7 @@ pip install -U -r requirements.txt
 ```
 python main.py --use_wandb '[False|True]' --path_to_checkpoints_reward_model [path to reward_model checkpoints directory] --checkpoint_theta_dir [path to train_checkpoints_theta directory] --checkpoint_final_dir [path to checkpoints final directory] --checkpoint_ema_dir [path to checkpoints ema directory]
 ```
+
+## Ссылка на отчет
+
+https://wandb.ai/lulim/Alignment_experiments/reports/Alignment-report--Vmlldzo4OTE5MDYw
