@@ -59,7 +59,7 @@ class RewardDataCollatorWithPadding:
 
 class DistilBertModel:
   def __init__(self, max_length: Optional[int] = 512,
-               path_to_save_checkpoint: Optional[str] = '/content/drive/MyDrive/Alignment_project/reward_model_checkpoints') -> None:
+               path_to_save_checkpoint: Optional[str] = '/kaggle/working/reward_model_bert/checkpoint-2812') -> None:
     self.tokenizer = AutoTokenizer.from_pretrained("distilbert/distilbert-base-cased")
     self.model = AutoModelForSequenceClassification.from_pretrained("distilbert/distilbert-base-cased", num_labels=1)
     self.max_length = max_length

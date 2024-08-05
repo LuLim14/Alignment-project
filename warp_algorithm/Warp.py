@@ -1,5 +1,7 @@
+import os
 import gc
 import torch
+import wandb
 
 from tqdm import tqdm
 from math import acos, sin
@@ -11,14 +13,15 @@ from torch.utils.data import DataLoader
 from torch.distributions.categorical import Categorical
 from reward_model import DistilBertModel
 from constants import CFG
+from config import Configs
 
 
 class Warp:
     def __init__(self, reward_model_class: Type[DistilBertModel], prompt_dataset: DataLoader, optimizer: Any, I: int, M: int,
                  T: int, mu: float, lambd: float, eta: float, batch_size: int,
-                 checkpoint_theta_dir: Optional[str] = '/content/drive/MyDrive/Alignment_project/train_checkpoints_theta_init',
-                 checkpoint_final_dir: Optional[str] = '/content/drive/MyDrive/Alignment_project/train_checkpoints_final',
-                 checkpoint_ema_dir: Optional[str] = '/content/drive/MyDrive/Alignment_project/train_checkpoints_ema') -> None:
+                 checkpoint_theta_dir: Optional[str] = Configs.checkpoint_theta_dir,
+                 checkpoint_final_dir: Optional[str] = Configs.checkpoint_final_dir,
+                 checkpoint_ema_dir: Optional[str] = Configs.checkpoint_ema_dir) -> None:
         self.sft_tokenizer = AutoTokenizer.from_pretrained('lvwerra/gpt2-imdb')
         self.sft_model = GPT2LMHeadModel.from_pretrained('lvwerra/gpt2-imdb').to(CFG.device)
 
@@ -106,12 +109,8 @@ class Warp:
             weights_2.append(param.data.view(-1))
         weights_2 = torch.cat(weights_2)
 
-        # weights_1_norm = weights_1 / weights_1.norm() # check without normilize
-        # weights_2_norm = weights_2 / weights_2.norm() # check without normilize
-
         dot_prod = torch.dot(weights_1, weights_2)
         angle_rad = acos(dot_prod)
-        # print(angle_rad) #check this
         return angle_rad
 
     def slerp(self, theta_init_model: Type[GPT2LMHeadModel], thetas: list, lambd_param: float) -> Type[GPT2LMHeadModel]:
@@ -164,23 +163,23 @@ class Warp:
                         policy_loss = self.policy_gradient_update(theta_m_model, reward, theta_m_probs)
                         policy_losses.append(policy_loss.item())
 
-                        wandb.log({
-                            'reward': reward,
-                            'kl_div': kl_div,
-                            'policy_loss': policy_loss
-                        })
+                        if Configs.use_wandb:
+                            wandb.log({
+                                'reward': reward,
+                                'kl_div': kl_div,
+                                'policy_loss': policy_loss
+                            })
 
                         theta_m_ema_model = self.ema_update_weights(theta_m_ema_model, theta_m_model, self.mu)
-                        theta_m_ema_model.save_pretrained(save_directory=self.checkpoint_ema_dir)
+                        theta_m_ema_model.save_pretrained(save_directory=os.path.join(os.getcwd(), Configs.checkpoint_ema_dir[0]))
                         gc.collect()
                 theta_m_models.append(theta_m_model)
 
             slerp_model = self.slerpm(theta_init_model, theta_m_models)
             theta_init_model = self.ema_update_weights(theta_init_model, slerp_model, self.eta)
-            theta_init_model.save_pretrained(save_directory=self.checkpoint_theta_dir)
+            theta_init_model.save_pretrained(save_directory=os.path.join(os.getcwd(), Configs.checkpoint_theta_dir[0]))
             gc.collect()
 
         final_model = self.ema_update_weights(self.sft_model, theta_init_model, self.eta)
-        final_model.save_pretrained(save_directory=self.checkpoint_final_dir)
-
+        final_model.save_pretrained(save_directory=os.path.join(os.getcwd(), Configs.checkpoint_final_dir[0]))
         return final_model, policy_losses, rewards, kl_divs
