@@ -1,15 +1,17 @@
 # Alignment тестовое задание
 
 ## Clone
-
+```
 git clone https://github.com/LuLim14/Alignment_project.git
 cd ./warp_algorithm
+```
 
 ## Prerequisites
 
 Установка зависимостей из 'requirements.txt':
-
+```
 pip install -U -r requirements.txt
+```
 
 ## Запуск пайплайна
 ```
