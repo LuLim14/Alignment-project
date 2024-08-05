@@ -3,7 +3,7 @@
 ## Clone
 ```
 git clone https://github.com/LuLim14/Alignment_project.git
-cd ./warp_algorithm
+cd ./Alignment_project/warp_algorithm
 ```
 
 ## Prerequisites
