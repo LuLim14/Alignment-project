@@ -20,4 +20,4 @@ python main.py --use_wandb '[False|True]' --path_to_checkpoints_reward_model [pa
 
 ## Ссылка на отчет
 
-https://wandb.ai/lulim/Alignment_experiments/reports/Alignment-report--Vmlldzo4OTE5MDYw
+https://api.wandb.ai/links/lulim/apf1bg9x
