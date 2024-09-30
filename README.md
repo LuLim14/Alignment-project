@@ -1,4 +1,4 @@
-# Alignment тестовое задание
+# Implementation of WARP algorithm (https://arxiv.org/pdf/2406.16768)
 
 ## Clone
 ```
